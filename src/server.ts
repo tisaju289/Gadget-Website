@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { supabase } from "./integrations/supabase/client";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -16,6 +17,37 @@ async function getServerEntry(): Promise<ServerEntry> {
     );
   }
   return serverEntryPromise;
+}
+
+async function dynamicManifestResponse(): Promise<Response> {
+  const { data } = await supabase
+    .from("site_settings")
+    .select("site_name, logo_url, favicon_url, meta_description")
+    .limit(1)
+    .maybeSingle();
+
+  const name = data?.site_name?.trim() || "Nexio";
+  const icon = data?.logo_url || data?.favicon_url || "/icon-192.svg";
+  const manifest = {
+    name,
+    short_name: name.slice(0, 12),
+    description: data?.meta_description || "Premium gadgets and electronics in Bangladesh.",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#0f766e",
+    icons: [
+      { src: icon, sizes: "192x192", type: "image/png", purpose: "any maskable" },
+      { src: icon, sizes: "512x512", type: "image/png", purpose: "any maskable" },
+    ],
+  };
+
+  return new Response(JSON.stringify(manifest), {
+    headers: {
+      "content-type": "application/manifest+json; charset=utf-8",
+      "cache-control": "no-store, max-age=0",
+    },
+  });
 }
 
 function brandedErrorResponse(): Response {
@@ -69,6 +101,9 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      if (new URL(request.url).pathname === "/api/manifest.webmanifest") {
+        return await dynamicManifestResponse();
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

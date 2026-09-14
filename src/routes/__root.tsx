@@ -151,7 +151,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap",
       },
       { rel: "icon", href: s?.favicon_url || "/favicon.ico" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "manifest", href: "/api/manifest.webmanifest" },
     ];
 
     const scripts: Array<Record<string, string>> = [];
