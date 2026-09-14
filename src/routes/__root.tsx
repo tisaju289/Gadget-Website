@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { InstallAppPrompt } from "@/components/layout/InstallAppPrompt";
 
 import { setProxyOptions } from "@/lib/img";
 import { useEffect } from "react";
@@ -131,6 +132,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
+      { name: "theme-color", content: "#0f766e" },
     ];
     if (s?.meta_keywords) meta.push({ name: "keywords", content: s.meta_keywords });
     if (s?.og_image_url) {
@@ -149,6 +151,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap",
       },
       { rel: "icon", href: s?.favicon_url || "/favicon.ico" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ];
 
     const scripts: Array<Record<string, string>> = [];
@@ -298,6 +301,11 @@ function RootComponent() {
         
         <Outlet />
         <CartDrawer />
+        <InstallAppPrompt
+          siteName={(Route.useLoaderData() as { site_name?: string | null } | null)?.site_name}
+          logoUrl={(Route.useLoaderData() as { logo_url?: string | null } | null)?.logo_url}
+          faviconUrl={(Route.useLoaderData() as { favicon_url?: string | null } | null)?.favicon_url}
+        />
         <Toaster richColors position="bottom-right" />
       </AuthProvider>
     </QueryClientProvider>
