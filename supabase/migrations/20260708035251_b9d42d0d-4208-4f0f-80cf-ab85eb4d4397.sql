@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS topbar_links jsonb NOT NULL DEFAULT '[]'::jsonb;

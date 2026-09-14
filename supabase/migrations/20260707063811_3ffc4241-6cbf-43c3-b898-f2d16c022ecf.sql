@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS nav_links jsonb NOT NULL DEFAULT '[]'::jsonb; ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS show_nav_categories boolean NOT NULL DEFAULT false;
